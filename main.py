@@ -1,6 +1,8 @@
 from fastapi import FastAPI
-from routes.routes import router
+from routes.common_routes import router
 from routes.admin_routes import router_admin
+from routes.writers_routes import router_writers
+from routes.users_routes import router_users
 from database.database import engine
 import database.models as models
 from contextlib import asynccontextmanager
@@ -19,11 +21,12 @@ async def lifespan(app:FastAPI):
 
 
 
-
-
 app = FastAPI(lifespan=lifespan)
 app.include_router(router)
 app.include_router(router_admin)
+app.include_router(router_writers)
+app.include_router(router_users)
+
 
 app.state.limiter=limiter
 app.add_exception_handler(RateLimitExceeded,_rate_limit_exceeded_handler)

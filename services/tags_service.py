@@ -3,6 +3,7 @@ from fastapi import HTTPException
 from repositorys.sqlalchemy_tag_repo import SqlAlchemyTagRepo
 from database.models import Tags
 
+#Función para crear etiquetas
 async def create_tag(model:schemas.CreateTag, repo:SqlAlchemyTagRepo):
     existing_tag=await repo.get_by_name(model.name)
     if existing_tag:
@@ -18,6 +19,7 @@ async def create_tag(model:schemas.CreateTag, repo:SqlAlchemyTagRepo):
 
 
 
+#Función para eliminar etiquetas
 async def delete_tag(tag_id:int, repo:SqlAlchemyTagRepo):
     tag=await repo.get_by_id(tag_id)
     if not tag:

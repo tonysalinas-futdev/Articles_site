@@ -4,13 +4,34 @@ from typing import List,Optional
 import re
 from fastapi import HTTPException
 
+#Esquema con la informacion del autor que será mostrada en los detalles del artículo
+class WriterArticleInfo(BaseModel):
+    firstname:str
+    lastname:str
+    bio:Optional[str]=None
+
+
+#Clase para crear un comentario
+class Comments(BaseModel):
+    id:int
+    text:str=Field(
+        
+        max_length=4000
+    )
+    
+
+
 class Pics(BaseModel):
     link:str
     model_config = ConfigDict(from_attributes=True)
+
+
 class TagBase(BaseModel):
     id:int
     name:str
     model_config = ConfigDict(from_attributes=True)
+
+
 
 class CreateTag(BaseModel):
     name:str=Field(...,
@@ -32,8 +53,11 @@ class ArticleBase(BaseModel):
     content:str
     date:datetime
     autor_id:int
+    is_suspended:bool
     pics:Optional[List[str]]=None
     tags:Optional[List[str]]=None
+    comments:Optional[List[Comments]]=None
+    
 
 class CreateArticle(BaseModel):
     title:str=Field(
@@ -46,7 +70,7 @@ class CreateArticle(BaseModel):
     )
     pics:Optional[List[str]]=None
     tags:Optional[List[str]]=None
-    autor_id:int
+
 
 
 class SendArticleDetail(BaseModel):
@@ -57,17 +81,17 @@ class SendArticleDetail(BaseModel):
     pics:Optional[List[Pics]]=None
     tags:Optional[List[TagBase]]=None
     date:datetime
-    
-    
+    comments:Optional[List[Comments]]=None
+    autor:WriterArticleInfo
     model_config = ConfigDict(from_attributes=True)
 
 
 class CreateComment(BaseModel):
-    article_id:int=Field(...)
+    
     text:str=Field(
         ...,
         min_length=1,
-        max_length=800
+        max_length=4000
     )
 
 class GetAllPaginated(BaseModel):

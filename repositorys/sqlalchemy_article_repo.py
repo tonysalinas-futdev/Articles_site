@@ -1,7 +1,7 @@
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, load_only
 from sqlalchemy import select,and_
 import schemas
-from database.models import Article,Tags
+from database.models import Article,Tags,Writer
 from repositorys.article_repository import ArticleRepo
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -12,18 +12,21 @@ class SqlalchemyArticleRepo(ArticleRepo):
     async def get_by_id(self,id:int):
         stmt=select(Article).options(selectinload(
             Article.pics,),
-            selectinload(Article.tags)
+            selectinload(Article.tags),
+            selectinload(Article.comments),
+            selectinload(Article.autor).load_only(Writer.firstname, Writer.lastname, Writer.bio)
+            
             
             ).where(Article.id==id)
 
         result= await self.session.execute(stmt)
         article=result.scalar_one_or_none()
-
+        
         return article
 
     #Función para obtener un artículo por su títutlo exacto
     async def get_by_title(self,title:str):
-        stmt=select(Article).where(Article.title==title).order_by(Article.date)
+        stmt=select(Article).options(selectinload(Article.autor).load_only(Writer.firstname, Writer.lastname, Writer.bio)).where(Article.title==title).order_by(Article.date)
         result=await self.session.execute(stmt)
         article=result.scalar_one_or_none()
         return article
@@ -32,15 +35,16 @@ class SqlalchemyArticleRepo(ArticleRepo):
     async def get_all(self, cursor:int=0):
         stmt=select(Article).options(
             selectinload(Article.pics),
-            selectinload(Article.tags)
-        ).where(Article.id>cursor).limit(10)
+            selectinload(Article.tags),
+            selectinload(Article.comments)
+        ).where(Article.id>cursor).order_by(Article.date, Article.id).limit(10)
         result=await self.session.execute(stmt)
         articles=result.scalars().all()
         
         next_cursor=None
         if articles:
             last_article=articles[-1] 
-            next_cursor=last_article.id 
+            next_cursor=last_article.id if len(articles)==10 else None
         
         has_more=len(articles)==10 
         model=schemas.GetAllPaginated(
@@ -53,12 +57,12 @@ class SqlalchemyArticleRepo(ArticleRepo):
 
 #Funcion para guardar un artículo
 
-    async def save(self,article:Article):
+    async def save(self,model):
 
-        self.session.add(article)
+        self.session.add(model)
         await self.session.commit()
-        await self.session.refresh(article)
-        return article
+        await self.session.refresh(model)
+        return model
 
     async def delete(self,article:Article):
         try:
@@ -89,7 +93,8 @@ class SqlalchemyArticleRepo(ArticleRepo):
         #Hacemos la consulta según los campos recibidos y devolvemos los resultados paginados
         stmt=select(Article).options(
             selectinload(Article.pics),
-            selectinload(Article.tags)
+            selectinload(Article.tags),
+            selectinload(Article.comments),
         ).where(and_(
             *filters,
             Article.id>cursor
@@ -100,7 +105,10 @@ class SqlalchemyArticleRepo(ArticleRepo):
         next_cursor=None
         if articles:
             last_article=articles[-1]
-            next_cursor=last_article.id
+            if len(articles)==10:
+                next_cursor=last_article.id 
+            else:
+                next_cursor=None
         has_more=len(articles)==10
 
         final_model=schemas.GetAllPaginated(

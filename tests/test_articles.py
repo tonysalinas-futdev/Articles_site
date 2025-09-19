@@ -1,8 +1,9 @@
-from repositorys.sqlalchemy_article_repo import SqlalchemyArticleRepo
-from repositorys.sqlalchemy_tag_repo import SqlAlchemyTagRepo
+
 from database.models import Article, Tags,Pics
 import pytest
 from sqlalchemy.exc import IntegrityError
+import schemas
+
 
 
 #Test para probar la función para persistir los artículos en la bd en el caso positivo
@@ -58,5 +59,6 @@ async def test_save_failed(tag, title, content, pics, autor_id,get_article_repo)
     with pytest.raises(IntegrityError):
         assert await get_article_repo.save(article)
     
+
 
 
