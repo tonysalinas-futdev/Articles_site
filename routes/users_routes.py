@@ -73,6 +73,7 @@ async def create_comment(article_id:int, model:schemas.CreateComment,service:Sql
     return {"message":"Se ha creado su comentario exitosamente"}
 
 
+
 @router_users.post("/forgot_password", response_model=schemas.MsgResponse, summary="Ruta para obtener un token para recuperar la contraseña", status_code=status.HTTP_200_OK )
 async def password_recovery(email:EmailStr=Body(...), repo:SqlAlchemyUserRepo=Depends(get_users_repo)):
     user=await repo.get_by_email_or_id(email=email)

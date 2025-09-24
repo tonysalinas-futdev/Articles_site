@@ -98,11 +98,7 @@ class UpdatePassword(BaseModel):
     def validate_password(cls, valor):
         return pattern_password_validation(valor)
     
-    @model_validator(mode="after")
-    def password_validation(cls, values):
-        if values.password==values.new_password:
-            raise ValueError("La nueva contraseña debe ser diferente de la vieja")
-        return values
+    
     
 
 #Esquema para refrescar el access token

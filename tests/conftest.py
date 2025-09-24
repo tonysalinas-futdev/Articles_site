@@ -1,6 +1,6 @@
 import pytest
 import pytest_asyncio
-from database.models import Article, Tags,Pics, Admin, Writer
+from database.models import Article, Tags,Pics, Admin, Writer,User
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from repositorys.sqlalchemy_article_repo import SqlalchemyArticleRepo
@@ -10,7 +10,6 @@ from database.database import Base
 from faker import Faker
 import random
 import httpx
-from typing import List
 from main import app
 from utils import hash_password, verify_password
 
@@ -29,7 +28,6 @@ async def create_db():
         await conn.run_sync(Base.metadata.create_all)
 
 #Fixture para obtener la sessión
-
 @pytest_asyncio.fixture
 async def get_test_session(create_db):
     async with AsyncLocalSession() as session:
@@ -42,7 +40,7 @@ async def get_article_repo(get_test_session):
     return SqlalchemyArticleRepo(get_test_session)
 
 #Fixture para obtener el repositorio user
-
+@pytest_asyncio.fixture
 async def get_user_repo(get_test_session):
     return SqlAlchemyUserRepo(get_test_session)
 
@@ -52,39 +50,17 @@ async def get_tag_repo(get_test_session):
     return SqlAlchemyTagRepo(get_test_session)
 
 
-#Fixture para poblar la base de datos con artículos 
+
+#Fixture para sobrescribir la dependencia original de la sesión para los test
 @pytest_asyncio.fixture
-async def data_in_bd(get_test_session,get_tag_repo):
-
-    fake=Faker()
-    #Creamos los tags para los artículos
-    tags=["#python", "#java", "#programacion", "#software", "#go", "#fastapi", "#laravel","#django"]
-    tags_add=[Tags(name=tag) for tag in tags]
-    get_test_session.add_all(tags_add)
-    await get_test_session.flush()
-
-    #Creamos 15 artículos con datos random
-    for i in range (15):
-        article=Article(
-            #Una oración aleatoria que además va a contener algunas palabras de la lista
-            title=fake.sentence(ext_word_list=["Aprende", "Python", "Fastapi", "Comprende como", "Funciones"]),
-            #Texto falso
-            content=fake.text(),
-            #Un número random del 1 al 6
-            autor_id=random.randint(1,6),
-            date=fake.date_this_year(),
-            comments=[]
-            
+def get_session_override(get_test_session):
+    async def override():
+        yield get_test_session
+    app.dependency_overrides[get_session]=override
+    yield  
+    app.dependency_overrides.clear()
 
 
-        )
-        #Va a elelgir tags aleatorios de la lista de tags, la cantidad es dinámica
-        article_tags=random.sample(tags_add, random.randint(1, len(tags)-1))
-        article.tags.extend(article_tags)
-        get_test_session.add(article)
-
-
-    await get_test_session.commit()
 
 #fixture para obtener un cliente asíncrono de httpx
 @pytest_asyncio.fixture
@@ -95,21 +71,13 @@ async def get_client():
 #Fixture para guardar dos artículos en la base de datos
 
 
-#Fixture para sobrescribir la dependencia original de la sesión para los test
-@pytest.fixture
-def get_session_override(get_test_session):
-    async def override():
-        yield get_test_session
-    app.dependency_overrides[get_session]=override
-    yield  
-    app.dependency_overrides.clear()
 
 #Fixture para guardar dos usuarios en la bd
 @pytest_asyncio.fixture
 async def users_data(get_session_override, get_article_repo):
     user=Admin(
         firstname="Pedro",
-        lastname="García Pimienta",
+        lastname="García ",
         email="pedorperez@gmail.com",
         password=hash_password("Jacd#1234yg"))
     
@@ -121,11 +89,17 @@ async def users_data(get_session_override, get_article_repo):
         user_type="writer",
         bio="")
     
+
+    
+    
     await get_article_repo.save(user)
     await get_article_repo.save(user2)
 
+
+
     return {"admin":user,
-            "writer":user2}
+            "writer":user2,
+            }
 
 #Fixture para entregaar un usuario con permisos de escritor ya logueado
 @pytest_asyncio.fixture
@@ -153,6 +127,8 @@ async def get_login_admin(users_data, get_client):
     return login_response.json()
 
 
+
+
 @pytest_asyncio.fixture
 async def article_data(get_test_session,users_data):
 
@@ -167,3 +143,55 @@ async def article_data(get_test_session,users_data):
     await get_test_session.commit()
     await get_test_session.refresh(article)
     return article
+
+
+@pytest_asyncio.fixture
+async def data_in_db(get_test_session,get_tag_repo,get_user_repo):
+    writer=Writer(
+        firstname="Eduardo",
+        lastname="Camavinga",
+        email="example@gmail.com",
+        password=hash_password("1234567Ja#")
+    )
+    await get_user_repo.save(writer)
+    fake=Faker()
+    #Creamos los tags para los artículos
+    tags=["#python", "#java", "#programacion", "#software", "#go", "#fastapi", "#laravel","#django"]
+    tags_add=[Tags(name=tag) for tag in tags]
+    get_test_session.add_all(tags_add)
+    await get_test_session.flush()
+
+    #Creamos 15 artículos con datos random
+    for i in range (15):
+        article=Article(
+            #Una oración aleatoria que además va a contener algunas palabras de la lista
+            title=f"{i}{fake.sentence()}{random.sample(["python", "java", "fastapi", "Aprende a","top 10", "django"],1)}",
+            #Texto falso
+            content=fake.text(),
+            
+            autor_id=writer.id,
+            date=fake.date_this_year(),
+            
+
+
+        )
+        #Va a elelgir tags aleatorios de la lista de tags, la cantidad es dinámica
+        article_tags=random.sample(tags_add, random.randint(1, len(tags)-1))
+        article.tags.extend(article_tags)
+        get_test_session.add(article)
+
+
+    await get_test_session.commit()
+
+@pytest_asyncio.fixture
+async def users_in_db(get_test_session,get_user_repo):
+    fake=Faker()
+    for i in range(20):
+        user=User(
+            firstname=fake.first_name(),
+            lastname=fake.last_name(),
+            email=fake.unique.email(),
+            password=fake.password()
+        )
+        get_test_session.add(user)
+    await get_test_session.commit()

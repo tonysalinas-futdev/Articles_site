@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request,HTTPException
 from routes.common_routes import router
 from routes.admin_routes import router_admin
 from routes.writers_routes import router_writers
@@ -10,6 +10,8 @@ from slowapi import  _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from limiter_config import limiter
 from slowapi.middleware import SlowAPIMiddleware
+from fastapi.middleware.cors import CORSMiddleware
+import asyncio
 
 
 @asynccontextmanager
@@ -31,3 +33,29 @@ app.include_router(router_users)
 app.state.limiter=limiter
 app.add_exception_handler(RateLimitExceeded,_rate_limit_exceeded_handler)
 app.add_middleware(SlowAPIMiddleware)
+
+origins = [
+    "http://127.0.0.1:4200",
+    "http://127.0.0.1:8000",
+    "http://127.0.0.1:8080",
+
+]
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,            
+    allow_credentials=True,           
+    allow_methods=["*"],              
+    allow_headers=["*"],             
+)
+
+
+#Middleware para timeout
+@app.middleware("http")
+async def timeout(request:Request, call_next):
+    try:
+        return await asyncio.wait_for(call_next(request), timeout=60)
+    except asyncio.TimeoutError:
+        raise HTTPException(status_code=504, detail="El tiempo de espera se ha agotado")
+    

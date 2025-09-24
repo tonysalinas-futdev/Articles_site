@@ -45,7 +45,10 @@ async def main():
         raise ValueError("La contraseña es obligatoria: ")
     
 
-    await createadmin(password,firstname,lastname,email,user_type)
+    if await createadmin(password,firstname,lastname,email,user_type):
+        print("Ha creado su usuario exitosamente")
 
+    else:
+        print("No se ha podido crear su usuario")
 if __name__ == "__main__":
     asyncio.run(main())

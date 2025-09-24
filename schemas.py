@@ -9,6 +9,7 @@ class WriterArticleInfo(BaseModel):
     firstname:str
     lastname:str
     bio:Optional[str]=None
+    model_config = ConfigDict(from_attributes=True)
 
 
 #Clase para crear un comentario
@@ -55,7 +56,7 @@ class ArticleBase(BaseModel):
     autor_id:int
     is_suspended:bool
     pics:Optional[List[str]]=None
-    tags:Optional[List[str]]=None
+    tags:Optional[List[TagBase]]=None
     comments:Optional[List[Comments]]=None
     
 
@@ -98,6 +99,7 @@ class GetAllPaginated(BaseModel):
     next_cursor:Optional[int]=None
     items:List[SendArticleDetail]
     has_more:bool
+    model_config = ConfigDict(from_attributes=True)
 
 class SearchByFilters(BaseModel):
     autor_id:Optional[int]=None

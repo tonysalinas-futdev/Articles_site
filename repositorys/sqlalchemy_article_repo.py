@@ -1,5 +1,5 @@
 from sqlalchemy.orm import selectinload, load_only
-from sqlalchemy import select,and_
+from sqlalchemy import select,and_,func
 import schemas
 from database.models import Article,Tags,Writer
 from repositorys.article_repository import ArticleRepo
@@ -12,7 +12,7 @@ class SqlalchemyArticleRepo(ArticleRepo):
     async def get_by_id(self,id:int):
         stmt=select(Article).options(selectinload(
             Article.pics,),
-            selectinload(Article.tags),
+            selectinload(Article.tags).load_only(Tags.name),
             selectinload(Article.comments),
             selectinload(Article.autor).load_only(Writer.firstname, Writer.lastname, Writer.bio)
             
@@ -36,8 +36,9 @@ class SqlalchemyArticleRepo(ArticleRepo):
         stmt=select(Article).options(
             selectinload(Article.pics),
             selectinload(Article.tags),
-            selectinload(Article.comments)
-        ).where(Article.id>cursor).order_by(Article.date, Article.id).limit(10)
+            selectinload(Article.comments),
+            selectinload(Article.autor).load_only(Writer.firstname, Writer.lastname, Writer.bio)
+        ).where(Article.id>cursor).order_by( Article.id,Article.date).limit(10)
         result=await self.session.execute(stmt)
         articles=result.scalars().all()
         
@@ -95,6 +96,7 @@ class SqlalchemyArticleRepo(ArticleRepo):
             selectinload(Article.pics),
             selectinload(Article.tags),
             selectinload(Article.comments),
+            selectinload(Article.autor).load_only(Writer.firstname, Writer.lastname, Writer.bio)
         ).where(and_(
             *filters,
             Article.id>cursor
@@ -117,3 +119,4 @@ class SqlalchemyArticleRepo(ArticleRepo):
             items=articles
         )
         return final_model
+

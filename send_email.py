@@ -17,8 +17,7 @@ async def send_email(subject:str, to:str, from_:str, text:str):
 
     try:
         with smtplib.SMTP(host, port) as server:
-            server.starttls()  # Seguridad TLS
-            
+            server.starttls() 
             server.login(os.getenv("USERNAME_EMAIL"),os.getenv("EMAIL_PASSWORD"))
             server.send_message(messagge)
             print("Correo enviado correctamente.")

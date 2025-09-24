@@ -60,19 +60,19 @@ class SqlAlchemyUserRepo():
     #Función para obtener a todos los usuarios usando paginación por cursor
     async def get_all(self,cursor:int=0):
         #Hacemos la consulta para obtener a todos los usuarios, con id mayor que el cursor 
-        stmt=select(User).where(User.id>cursor).order_by(User.joined,User.id).limit(15)
+        stmt=select(User).where(User.id>cursor).order_by(User.id).limit(15)
         result=await self.session.execute(stmt)
         users=result.scalars().all()
         #Obtenemos el id del último objeto usuario
+        next_cursor=None
         if users:
             last_user=users[-1]
 
         #Esta será la variable que informará al consumidor de la API, por cuál objeto se quedó
-            next_cursor=last_user.id
+            next_cursor=last_user.id if len(users)==15 else None
         #Si la longitud de los resultados de la query es menor a 15, significa que no hay mas objetos y por ende no hay próximo cursor y has_more es Falso
-        if len(users)<15:
-            next_cursor=None
-        has_more=len(users)==10
+        
+        has_more=len(users)==15
 
         return{
             "next_cursor":next_cursor,

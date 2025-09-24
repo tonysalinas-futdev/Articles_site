@@ -1,5 +1,5 @@
 import pytest
-import pytest_asyncio
+
 from repositorys.sqlalchemy_article_repo import SqlalchemyArticleRepo
 from repositorys.sqlalchemycrud import SqlAlchemyUserRepo
 from database.models import User, Writer, Admin

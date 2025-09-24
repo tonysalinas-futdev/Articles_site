@@ -69,12 +69,18 @@ async def signin(model:user_schemas.UserSignIn, repo:SqlAlchemyUserRepo):
 
 async def update_password(user_id,model:user_schemas.UpdatePassword, repo:SqlAlchemyUserRepo):
     user=await repo.get_by_email_or_id(id=user_id)
-    if verify_password(model.new_password, user.password):
-        raise HTTPException(status_code=409, detail="La contraseña nueva debe ser distinta a la anterior")
-    has_pass=hash_password(model.new_password)
-    user.password=has_pass
-    await repo.commit_and_refresh(user)
+    if verify_password(model.password, user.password):
+        if verify_password(model.new_password,user.password):
+            raise HTTPException(status_code=409,detail="La contraseña nueva debe ser distinta a la anterior")
+        
+        user.password=hash_password(model.new_password)
+        await repo.commit_and_refresh(user)
+        return True
+    else:
+        raise HTTPException(status_code=401,detail="Contraseña incorrecta")
 
+
+#Lógica para editar el perfil del usuario
 async def edit(user_id:int, model:Union[user_schemas.UserUpdate,user_schemas.WriterProfileUpdate],repo:SqlAlchemyUserRepo):
     user=await repo.get_by_email_or_id(id=user_id)
     if not user:
