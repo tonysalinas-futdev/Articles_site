@@ -5,7 +5,7 @@ from limiter_config import limiter
 import user_schemas
 from repositorys.sqlalchemy_article_repo import SqlalchemyArticleRepo
 import schemas
-from services.article_service import coment
+from services.article_service import coment, react,add_to_favorites
 from services.user_service import create_user, signin, generate_token_and_refresh, update_password, edit, verify_otp
 from jwt_utils import get_current_user, verify_refresh
 from utils import hash_password
@@ -14,6 +14,7 @@ from send_email import send_email
 from fastapi import Request
 from typing import Union
 router_users=APIRouter(prefix="/users", tags=["Users"])
+from typing import List
 
 #Endpoint para loguearse
 @limiter.limit("60/minute")
@@ -112,3 +113,20 @@ async def reset_password(request: Request, model:user_schemas.NewPassword, repo:
     await repo.commit_()
 
     return {"message": "Contraseña actualizada exitosamente"}
+
+
+@router_users.post("/like/{article_id}", response_model=schemas.MsgResponse, status_code=status.HTTP_200_OK)
+async def to_like(article_id:int, repo:SqlalchemyArticleRepo=Depends(get_repo), data=Depends(get_current_user)):
+    like=await react(article_id, data.get("id"),repo)
+    return like
+
+
+
+@router_users.put("/add_to_favorite/{article_id}", response_model=schemas.MsgResponse, status_code=status.HTTP_200_OK)
+async def add_favorite(article_id:int, repo:SqlalchemyArticleRepo=Depends(get_repo), data=Depends(get_current_user)):
+    return await add_to_favorites(article_id, repo)
+
+
+@router_users.get("/get_favorites/", response_model=List[schemas.ArticleList], status_code=status.HTTP_200_OK)
+async def get_favoritess(repo:SqlalchemyArticleRepo=Depends(get_repo), data=Depends(get_current_user)):
+    return await repo.get_favorites()

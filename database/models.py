@@ -14,18 +14,23 @@ post_and_tag=Table(
 )
 
 
+
+
 class Article(Base):
     __tablename__="articles"
     id=Column(Integer,primary_key=True, autoincrement=True, index=True)
     title=Column(String, index=True,nullable=False,unique=True)
     content=Column(String)
     date=Column(DateTime, default=datetime.datetime.now)
+    in_favorites=Column(Boolean, default=False)
     tags=relationship("Tags", secondary=post_and_tag ,back_populates="posts")
     pics=relationship("Pics",back_populates="article")
     autor_id=Column(Integer,ForeignKey("writer.id"))
     autor=relationship("Writer", back_populates="articles")
     is_suspended=Column(Boolean, default=False)
+    likes=relationship("Like", back_populates="article")
     comments=relationship("Comment", back_populates="article")
+
     
 
 
@@ -37,6 +42,7 @@ class User(Base):
     email=Column(String, nullable=False, index=True, unique=True)
     password=Column(String, nullable=False)
     user_type=Column(String, default="user")
+    likes=relationship("Like", back_populates="user")
     
     joined=Column(DateTime, default=datetime.datetime.now)
     comments=relationship("Comment", back_populates="user",cascade="all, delete-orphan")
@@ -51,6 +57,7 @@ class Writer(User):
     __tablename__ = 'writer'
     id=Column(Integer, ForeignKey("users.id"), primary_key=True)
     bio=Column(String)
+    profile_pic=Column(String, nullable=True, default=None)
 
     articles=relationship("Article", back_populates="autor")
 
@@ -68,6 +75,16 @@ class Admin(User):
         "polymorphic_identity": "admin"
 
     }
+
+
+
+class Like(Base):
+    __tablename__="likes"
+    id=Column(Integer, primary_key=True)
+    user_id=Column(Integer, ForeignKey("users.id"))
+    article_id=Column(Integer, ForeignKey("articles.id"))
+    user=relationship("User", back_populates="likes")
+    article=relationship("Article", back_populates="likes")
 
 
 class OTP(Base):

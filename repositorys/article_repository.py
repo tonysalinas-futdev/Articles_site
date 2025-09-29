@@ -3,7 +3,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class ArticleRepo(ABC):
-
+    @abstractmethod
+    async def commit_(self):
+        pass
     @abstractmethod
     async def get_by_id(self):
         pass
@@ -28,6 +30,15 @@ class ArticleRepo(ABC):
     @abstractmethod
     async def delete(article):
         pass
+
+    @abstractmethod
+    async def get_like(article_id:int, user_id:int):
+        pass
+
+    @abstractmethod
+    async def get_favorites():
+        pass
+
 
 
 

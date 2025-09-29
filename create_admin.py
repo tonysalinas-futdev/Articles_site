@@ -4,6 +4,7 @@ from typing import Literal
 import argparse
 from sqlalchemy import select
 import asyncio
+from utils import hash_password
 
 
 UserType=Literal["admin","writer"]
@@ -23,7 +24,7 @@ async def createadmin(password,firstname="John", lastname="Doe", email="userexam
         firstname=firstname,
         lastname=lastname,
         email=email,
-        password=password,
+        password=hash_password(password),
         user_type=user_type
     )
         session.add(admin)

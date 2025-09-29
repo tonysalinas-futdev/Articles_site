@@ -17,7 +17,7 @@ async def get_article_by_id(article_id:int, service:SqlalchemyArticleRepo=Depend
     article=await service.get_by_id(article_id)
     if not article:
         raise HTTPException(status_code=404, detail="No se ha podido encontrar ese artículo")
-    return article
+    return schemas.SendArticleDetail.model_validate(article)
 
 
 #Ruta para obtener todos los articulos

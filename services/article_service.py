@@ -2,7 +2,7 @@ import schemas
 from repositorys.sqlalchemy_article_repo import SqlalchemyArticleRepo
 from fastapi import HTTPException
 from repositorys.sqlalchemy_tag_repo import SqlAlchemyTagRepo
-from database.models import Article,Pics,Comment
+from database.models import Article,Pics,Comment,Like
 
 
 #Service para crear un artículo
@@ -65,4 +65,30 @@ async def coment(user_id:int,article_id:int, repo:SqlalchemyArticleRepo,model:sc
 
     return {"message":"Comentario creado exitosamente"}
 
+async def react(article_id: int, user_id:int, repo:SqlalchemyArticleRepo):
+    existing_like=await repo.get_like(user_id, article_id)
+    if existing_like:
+        await repo.delete(existing_like)
+        return {"message":"Ha eliminado su reacción"}
+    like=Like(
+        user_id=user_id,
+        article_id=article_id
+    )
+    await repo.save(like)
+    
+    return {"message":"Ha reaccionado correctamente"}
 
+async def add_to_favorites(article_id:int,repo:SqlalchemyArticleRepo):
+    article=await repo.get_by_id(article_id)
+    if article.in_favorites==False:
+        article.in_favorites=True
+        await repo.commit_()
+        return {"message":"Artículo añadido a favoritos"}
+    
+    else:
+        article.in_favorites=False
+        await repo.commit_()
+
+        return {"message":"Artículo eliminado de favoritos"}
+    
+    

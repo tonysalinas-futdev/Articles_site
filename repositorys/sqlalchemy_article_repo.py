@@ -1,20 +1,22 @@
 from sqlalchemy.orm import selectinload, load_only
 from sqlalchemy import select,and_,func
 import schemas
-from database.models import Article,Tags,Writer
+from database.models import Article,Tags,Writer,Like
 from repositorys.article_repository import ArticleRepo
 from sqlalchemy.ext.asyncio import AsyncSession
 
 class SqlalchemyArticleRepo(ArticleRepo):
     def __init__(self, session:AsyncSession):
         self.session=session
-    #Funcion para crear un artículo
+    #Funcion para obtener un artículo
     async def get_by_id(self,id:int):
-        stmt=select(Article).options(selectinload(
-            Article.pics,),
+        stmt=select(Article).options(
+            selectinload(Article.pics),
             selectinload(Article.tags).load_only(Tags.name),
             selectinload(Article.comments),
-            selectinload(Article.autor).load_only(Writer.firstname, Writer.lastname, Writer.bio)
+            selectinload(Article.likes),
+
+            selectinload(Article.autor).load_only(Writer.firstname, Writer.lastname, Writer.bio, Writer.profile_pic)
             
             
             ).where(Article.id==id)
@@ -37,6 +39,8 @@ class SqlalchemyArticleRepo(ArticleRepo):
             selectinload(Article.pics),
             selectinload(Article.tags),
             selectinload(Article.comments),
+            selectinload(Article.likes),
+
             selectinload(Article.autor).load_only(Writer.firstname, Writer.lastname, Writer.bio)
         ).where(Article.id>cursor).order_by( Article.id,Article.date).limit(10)
         result=await self.session.execute(stmt)
@@ -58,16 +62,25 @@ class SqlalchemyArticleRepo(ArticleRepo):
 
 #Funcion para guardar un artículo
 
-    async def save(self,model):
+    async def save(self,obj):
 
-        self.session.add(model)
+        self.session.add(obj)
         await self.session.commit()
-        await self.session.refresh(model)
-        return model
+        await self.session.refresh(obj)
+        return obj
 
-    async def delete(self,article:Article):
+    async def commit_(self):
         try:
-            await self.session.delete(article)
+            await self.session.commit()
+        except Exception as e:
+            await self.session.rollback()
+            raise Exception(f"No se ha podido hacer commit, error :{str(e)}")
+        
+
+
+    async def delete(self,obj):
+        try:
+            await self.session.delete(obj)
             await self.session.commit()
         except Exception as e:
             await self.session.rollback()
@@ -96,6 +109,8 @@ class SqlalchemyArticleRepo(ArticleRepo):
             selectinload(Article.pics),
             selectinload(Article.tags),
             selectinload(Article.comments),
+            selectinload(Article.likes),
+
             selectinload(Article.autor).load_only(Writer.firstname, Writer.lastname, Writer.bio)
         ).where(and_(
             *filters,
@@ -120,3 +135,21 @@ class SqlalchemyArticleRepo(ArticleRepo):
         )
         return final_model
 
+    async def get_like(self, user_id:int, article_id:int):
+        stmt=select(Like).where(and_(
+            Like.article_id==article_id,
+            Like.user_id==user_id
+        ))
+
+        result=await self.session.execute(stmt)
+        like= result.scalar_one_or_none()
+        return like
+    
+    async def get_favorites(self):
+        stmt=select(Article).options(
+            selectinload(Article.pics),
+            selectinload(Article.tags)
+        ).where(Article.in_favorites==True)
+        result=await self.session.execute(stmt)
+        articles=result.scalars().all()
+        return articles

@@ -1,8 +1,20 @@
-from pydantic import BaseModel, Field, field_validator,ConfigDict
+from pydantic import BaseModel, Field, field_validator,ConfigDict,model_validator
 from datetime import datetime
 from typing import List,Optional
 import re
 from fastapi import HTTPException
+
+
+
+class LikeSchema(BaseModel):
+    id: int
+    article_id:int
+    user_id:int
+    model_config = ConfigDict(from_attributes=True)
+    
+
+
+
 
 #Esquema con la informacion del autor que será mostrada en los detalles del artículo
 class WriterArticleInfo(BaseModel):
@@ -32,7 +44,16 @@ class TagBase(BaseModel):
     name:str
     model_config = ConfigDict(from_attributes=True)
 
-
+class ArticleList(BaseModel):
+    id:int
+    title:str
+    content:str
+    date:datetime
+    in_favorites:bool
+    autor_id:int
+    pics:Optional[List[str]]=None
+    tags:Optional[List[TagBase]]=None
+    model_config = ConfigDict(from_attributes=True)
 
 class CreateTag(BaseModel):
     name:str=Field(...,
@@ -53,11 +74,14 @@ class ArticleBase(BaseModel):
     title:str
     content:str
     date:datetime
+    in_favorites:datetime
     autor_id:int
     is_suspended:bool
     pics:Optional[List[str]]=None
     tags:Optional[List[TagBase]]=None
     comments:Optional[List[Comments]]=None
+    likes:Optional[List[LikeSchema]]=None
+    total_likes:Optional[int]=0
     
 
 class CreateArticle(BaseModel):
@@ -81,9 +105,16 @@ class SendArticleDetail(BaseModel):
     autor_id:int
     pics:Optional[List[Pics]]=None
     tags:Optional[List[TagBase]]=None
+    in_favorites:bool
     date:datetime
     comments:Optional[List[Comments]]=None
     autor:WriterArticleInfo
+    likes:Optional[List[LikeSchema]]=None
+    total_likes:Optional[int] = 0
+    @model_validator(mode="after")
+    def set_total_likes(cls, values):
+        values.total_likes = len(values.likes) if values.likes else 0
+        return values
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -97,7 +128,7 @@ class CreateComment(BaseModel):
 
 class GetAllPaginated(BaseModel):
     next_cursor:Optional[int]=None
-    items:List[SendArticleDetail]
+    items:List[ArticleList]
     has_more:bool
     model_config = ConfigDict(from_attributes=True)
 

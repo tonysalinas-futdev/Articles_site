@@ -56,6 +56,7 @@ async def test_create_article_failed(title, content, pics, tags , autor_id , sta
 async def test_get_article_by_id(get_client, article_data):
     response=await get_client.get("article/get_one/1")
     assert response.json()["id"]==1
+    assert response.json()["total_likes"]==0
     assert response.status_code==200
 
 #Test negativo para la ruta que nos devuelve un artículo según su id
@@ -385,3 +386,21 @@ async def test_get_one_user_failed(get_client,get_login_admin ,get_login_writer,
     assert response2.status_code==404
     assert response2.json()=={"detail":"No se ha encontrado ningún usuario con ese id"}
     
+
+
+@pytest.mark.asyncio
+async def test_react_to_article(get_client, get_login_admin,users_data,get_article_repo,article_data, get_login_writer):
+    response=await get_client.post("users/like/1",headers={"Authorization":f"Bearer {get_login_admin["access_token"]}"})
+    response2=await get_client.post("users/like/1",headers={"Authorization":f"Bearer {get_login_writer["access_token"]}"})
+    response3=await get_client.post("users/like/1",headers={"Authorization":f"Bearer {get_login_admin["access_token"]}"})
+    article= await get_article_repo.get_by_id(1)
+    assert article.id==1
+    assert len(article.likes)==1
+
+    assert response.status_code==200
+    assert response2.status_code==200
+    assert response3.status_code==200
+
+    assert response.json()=={"message":"Ha reaccionado correctamente"}
+
+

@@ -56,6 +56,7 @@ class UserBaseSend(BaseModel):
 class UserSend(UserBaseSend):
     articles:Optional[List[ArticleBase]]=None
     bio:Optional[str]=None
+    profile_pic:Optional[str]=None
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -85,6 +86,7 @@ class UserUpdate(BaseModel):
 #Esquema para actualizar la info del escritor
 class WriterProfileUpdate(UserUpdate):
     bio:Optional[str]=None
+    profile_pic:Optional[str]=None
 
 
 #Esquema para cambiar la contraseña
