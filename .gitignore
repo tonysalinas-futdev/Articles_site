@@ -1,0 +1,5 @@
+__pycache__/
+mi_entorno/
+*.bd
+*.pyc
+*.env
