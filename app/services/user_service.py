@@ -1,9 +1,9 @@
-import user_schemas
+import app.user_schemas as user_schemas
 from fastapi import HTTPException
-from database.models import User,Writer,Admin
-from jwt_utils import  generate_token,refresh_token
-from repositorys.sqlalchemycrud import SqlAlchemyUserRepo
-from utils import hash_password, verify_password
+from app.database.models import User,Writer,Admin
+from app.jwt_utils import  generate_token,refresh_token
+from app.repositorys.sqlalchemycrud import SqlAlchemyUserRepo
+from app.utils import hash_password, verify_password
 from datetime import datetime
 from typing import Union
 #Función para generar el access_token y el refresh token con los datos del usuario , las separamos para no repetir la lógica en en login y el signin

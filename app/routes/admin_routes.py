@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends,status, HTTPException
-from jwt_utils import get_current_user
-from repositorys.sqlalchemy_tag_repo import SqlAlchemyTagRepo
-from repositorys.sqlalchemycrud import SqlAlchemyUserRepo
-import schemas
-import user_schemas
-from services.tags_service import create_tag, delete_tag
-from dependences import  get_tag_repo,get_users_repo
-from services.user_service import change_role
-from send_email import send_email
+from app.jwt_utils import get_current_user
+from app.repositorys.sqlalchemy_tag_repo import SqlAlchemyTagRepo
+from app.repositorys.sqlalchemycrud import SqlAlchemyUserRepo
+import app.schemas as schemas
+import app.user_schemas as user_schemas
+from app.services.tags_service import create_tag, delete_tag
+from app.dependences import  get_tag_repo,get_users_repo
+from app.services.user_service import change_role
+from app.send_email import send_email
 
 router_admin=APIRouter(prefix="/admin", tags=["Admin"])
 

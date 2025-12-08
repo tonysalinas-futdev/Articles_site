@@ -1,8 +1,8 @@
 from pydantic import BaseModel, Field,EmailStr, field_validator, model_validator, ConfigDict
 from typing import List,Optional
-from schemas import ArticleBase
+from app.schemas import ArticleBase
 from datetime import datetime
-from validators import password_validator, pattern_password_validation, name_validator
+from app.validators import password_validator, pattern_password_validation, name_validator
 from enum import Enum
 
 

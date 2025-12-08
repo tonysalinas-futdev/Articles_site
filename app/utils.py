@@ -2,7 +2,7 @@ from passlib.hash import bcrypt
 
 #Funcion para hashear password
 def hash_password(password):
-    hashed=bcrypt.hash(password)
+    hashed=bcrypt.hash(password[:72])
     return hashed
 #Función para verificarla
 def verify_password(password,hashed_password):

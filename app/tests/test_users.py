@@ -1,8 +1,8 @@
 import pytest
 
-from repositorys.sqlalchemy_article_repo import SqlalchemyArticleRepo
-from repositorys.sqlalchemycrud import SqlAlchemyUserRepo
-from database.models import User, Writer, Admin
+from app.repositorys.sqlalchemy_article_repo import SqlalchemyArticleRepo
+from app.repositorys.sqlalchemycrud import SqlAlchemyUserRepo
+from app.database.models import User, Writer, Admin
 @pytest.mark.parametrize(
         "firstname, lastname, email, user_type, password",
         [("Pedro", "Gonzalez", "kroosismo0202@gmail.com", "user", "123456789"),

@@ -1,9 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from database.database import get_session
+from app.database.database import get_session
 from fastapi import  Depends
-from repositorys.sqlalchemy_article_repo import SqlalchemyArticleRepo
-from repositorys.sqlalchemy_tag_repo import SqlAlchemyTagRepo
-from repositorys.sqlalchemycrud import SqlAlchemyUserRepo
+from app.repositorys.sqlalchemy_article_repo import SqlalchemyArticleRepo
+from app.repositorys.sqlalchemy_tag_repo import SqlAlchemyTagRepo
+from app.repositorys.sqlalchemycrud import SqlAlchemyUserRepo
 
 
 

@@ -1,14 +1,14 @@
 from fastapi import FastAPI, Request,HTTPException
-from routes.common_routes import router
-from routes.admin_routes import router_admin
-from routes.writers_routes import router_writers
-from routes.users_routes import router_users
-from database.database import engine
-import database.models as models
+from app.routes.common_routes import router
+from app.routes.admin_routes import router_admin
+from app.routes.writers_routes import router_writers
+from app.routes.users_routes import router_users
+from app.database.database import engine
+import app.database.models as models
 from contextlib import asynccontextmanager
 from slowapi import  _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
-from limiter_config import limiter
+from app.limiter_config import limiter
 from slowapi.middleware import SlowAPIMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 import asyncio

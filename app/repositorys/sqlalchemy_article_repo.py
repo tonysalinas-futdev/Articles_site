@@ -1,8 +1,8 @@
 from sqlalchemy.orm import selectinload, load_only
 from sqlalchemy import select,and_,func
-import schemas
-from database.models import Article,Tags,Writer,Like
-from repositorys.article_repository import ArticleRepo
+import app.schemas as schemas
+from app.database.models import Article,Tags,Writer,Like
+from app.repositorys.article_repository import ArticleRepo
 from sqlalchemy.ext.asyncio import AsyncSession
 
 class SqlalchemyArticleRepo(ArticleRepo):

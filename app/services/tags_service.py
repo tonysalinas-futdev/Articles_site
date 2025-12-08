@@ -1,7 +1,7 @@
-import schemas
+import app.schemas as schemas
 from fastapi import HTTPException
-from repositorys.sqlalchemy_tag_repo import SqlAlchemyTagRepo
-from database.models import Tags
+from app.repositorys.sqlalchemy_tag_repo import SqlAlchemyTagRepo
+from app.database.models import Tags
 
 #Función para crear etiquetas
 async def create_tag(model:schemas.CreateTag, repo:SqlAlchemyTagRepo):

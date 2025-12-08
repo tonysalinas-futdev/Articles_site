@@ -1,9 +1,9 @@
-import user_schemas
+
 import pytest
-from services.article_service import delete
-from database.models import Article, User,Writer
-from main import app
-from fastapi import HTTPException
+from app.services.article_service import delete
+from app.database.models import Article, User,Writer
+from app.main import app
+
 
 
 #Test positivo la ruta para la creación de un artículo

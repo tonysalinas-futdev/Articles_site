@@ -1,8 +1,8 @@
 
-from database.models import Article, Tags,Pics
+from app.database.models import Article, Tags,Pics
 import pytest
 from sqlalchemy.exc import IntegrityError
-import schemas
+
 
 
 

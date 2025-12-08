@@ -1,21 +1,22 @@
 from fastapi import APIRouter, Depends,status, Request,Body, HTTPException, Response
-from repositorys.sqlalchemycrud import SqlAlchemyUserRepo
-from dependences import get_users_repo,get_repo
-from limiter_config import limiter
-import user_schemas
-from repositorys.sqlalchemy_article_repo import SqlalchemyArticleRepo
-import schemas
-from services.article_service import coment, react,add_to_favorites
-from services.user_service import create_user, signin, generate_token_and_refresh, update_password, edit, verify_otp
-from jwt_utils import get_current_user, verify_refresh
-from utils import hash_password
+from app.repositorys.sqlalchemycrud import SqlAlchemyUserRepo
+from app.dependences import get_users_repo,get_repo
+from app.limiter_config import limiter
+import app.user_schemas as user_schemas
+from app.repositorys.sqlalchemy_article_repo import SqlalchemyArticleRepo
+import app.schemas as schemas
+from app.services.article_service import coment, react,add_to_favorites
+from app.services.user_service import create_user, signin, generate_token_and_refresh, update_password, edit, verify_otp
+from app.jwt_utils import get_current_user, verify_refresh
+from app.utils import hash_password
 from pydantic import EmailStr
-from send_email import send_email
+from app.send_email import send_email
 from fastapi import Request
 from typing import Union
-router_users=APIRouter(prefix="/users", tags=["Users"])
 from typing import List
 
+
+router_users=APIRouter(prefix="/users", tags=["Users"])
 #Endpoint para loguearse
 @limiter.limit("60/minute")
 @router_users.post("/login", response_model=user_schemas.SignInData, status_code=status.HTTP_200_OK, summary="Ruta para que el cliente se loguee")

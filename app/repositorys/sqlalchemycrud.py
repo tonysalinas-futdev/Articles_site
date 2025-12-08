@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload, selectin_polymorphic
-import user_schemas
-from database.models import User, Writer, Admin,OTP
+
+from app.database.models import User, Writer, Admin,OTP
 from sqlalchemy.ext.asyncio import AsyncSession
 from random import randint
 

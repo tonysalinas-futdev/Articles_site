@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends,status, Request,HTTPException
-from repositorys.sqlalchemy_article_repo import SqlalchemyArticleRepo
-from repositorys.sqlalchemy_tag_repo import SqlAlchemyTagRepo
-from limiter_config import limiter
-import schemas
-from services.article_service import publish, delete
-from dependences import  get_repo, get_tag_repo
-from jwt_utils import get_current_user
+from app.repositorys.sqlalchemy_article_repo import SqlalchemyArticleRepo
+from app.repositorys.sqlalchemy_tag_repo import SqlAlchemyTagRepo
+from app.limiter_config import limiter
+import app.schemas as schemas
+from app.services.article_service import publish, delete
+from app.dependences import  get_repo, get_tag_repo
+from app.jwt_utils import get_current_user
 from typing import Union
 
 router_writers=APIRouter(prefix="/writers", tags=["Articles"])

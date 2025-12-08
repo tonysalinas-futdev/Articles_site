@@ -1,10 +1,10 @@
-from database.models import User, Writer, Admin
-from database.database import AsyncLocalSession
+from app.database.models import User, Writer, Admin
+from app.database.database import AsyncLocalSession
 from typing import Literal
-import argparse
+
 from sqlalchemy import select
 import asyncio
-from utils import hash_password
+from app.utils import hash_password
 
 
 UserType=Literal["admin","writer"]

@@ -1,8 +1,8 @@
-import schemas
-from repositorys.sqlalchemy_article_repo import SqlalchemyArticleRepo
+import app.schemas as schemas
+from app.repositorys.sqlalchemy_article_repo import SqlalchemyArticleRepo
 from fastapi import HTTPException
-from repositorys.sqlalchemy_tag_repo import SqlAlchemyTagRepo
-from database.models import Article,Pics,Comment,Like
+from app.repositorys.sqlalchemy_tag_repo import SqlAlchemyTagRepo
+from app.database.models import Article,Pics,Comment,Like
 
 
 #Service para crear un artículo

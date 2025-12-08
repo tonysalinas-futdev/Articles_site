@@ -1,7 +1,6 @@
 from sqlalchemy import select
-import schemas
-from database.models import Tags
-from repositorys.tag_repository import  TagRepo
+from app.database.models import Tags
+from app.repositorys.tag_repository import  TagRepo
 from sqlalchemy.ext.asyncio import AsyncSession
 
 

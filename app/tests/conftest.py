@@ -1,19 +1,19 @@
 import pytest
 import pytest_asyncio
-from database.models import Article, Tags,Pics, Admin, Writer,User
+from app.database.models import Article, Tags,Pics, Admin, Writer,User
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
-from repositorys.sqlalchemy_article_repo import SqlalchemyArticleRepo
-from repositorys.sqlalchemy_tag_repo import SqlAlchemyTagRepo
-from repositorys.sqlalchemycrud import SqlAlchemyUserRepo
-from database.database import Base
+from app.repositorys.sqlalchemy_article_repo import SqlalchemyArticleRepo
+from app.repositorys.sqlalchemy_tag_repo import SqlAlchemyTagRepo
+from app.repositorys.sqlalchemycrud import SqlAlchemyUserRepo
+from app.database.database import Base
 from faker import Faker
 import random
 import httpx
-from main import app
-from utils import hash_password, verify_password
-
-from dependences import get_session 
+from app.main import app
+from app.utils import hash_password, verify_password
+from httpx import ASGITransport
+from app.dependences import get_session 
 
 #Variables para la base de datos de los test
 DATABASE_URL="sqlite+aiosqlite:///:memory:"
@@ -65,7 +65,8 @@ def get_session_override(get_test_session):
 #fixture para obtener un cliente asíncrono de httpx
 @pytest_asyncio.fixture
 async def get_client():
-    async with httpx.AsyncClient(app=app,base_url="http://test") as client:
+    transport = ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport,base_url="http://test") as client:
         yield client
 
 #Fixture para guardar dos artículos en la base de datos
