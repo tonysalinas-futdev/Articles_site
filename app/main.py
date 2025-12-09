@@ -36,7 +36,7 @@ async def get_welcome():
         "Detalles":"API para sitio de artículos",
         "Código e instrucciones":"https://github.com/tonysalinas-futdev/Articles_site",
         "Mi correo":"kroosismo0202@gmail.com (kroos enjoyer, si)",
-        "Ver todos los endpoints":"https://articles-site-1.onrender.com/"
+        "Ver todos los endpoints":"https://articles-site-1.onrender.com/docs"
     }
 
 
