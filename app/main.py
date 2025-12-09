@@ -29,6 +29,16 @@ app.include_router(router_admin)
 app.include_router(router_writers)
 app.include_router(router_users)
 
+@app.get("/")
+async def get_welcome():
+    return {
+        "Saludo":"Holaaa",
+        "Detalles":"API para sitio de artículos",
+        "Código e instrucciones":"https://github.com/tonysalinas-futdev/Articles_site",
+        "Mi correo":"kroosismo0202@gmail.com (kroos enjoyer, si)",
+        "Ver todos los endpoints":"https://articles-site-1.onrender.com/"
+    }
+
 
 app.state.limiter=limiter
 app.add_exception_handler(RateLimitExceeded,_rate_limit_exceeded_handler)
