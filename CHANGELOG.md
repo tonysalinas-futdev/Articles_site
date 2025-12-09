@@ -3,7 +3,7 @@
 * Endpoint para añadir artículos a una lista de favoritos
 * Ahora es posible dejar reacciones en los artículos
 
-* Los autores ahora pueden tener su propia foro de perfil
+* Los autores ahora pueden tener su propia foto de perfil
 
 ### Corregido
 * Corregido error en la función para crear un admin de prueba.
